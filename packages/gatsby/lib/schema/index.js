@@ -8,6 +8,7 @@ const buildNodeTypes = require(`./build-node-types`)
 const buildNodeConnections = require(`./build-node-connections`)
 const { store, getNode } = require(`../redux`)
 const { boundActionCreators } = require(`../redux/actions`)
+
 const { deleteNodes } = boundActionCreators
 
 async function buildSchema() {
@@ -32,8 +33,6 @@ async function buildSchema() {
     type: `SET_SCHEMA`,
     payload: schema,
   })
-
-  return
 }
 
 // This seems like the most sensible way to decide when the the initial
@@ -65,7 +64,7 @@ module.exports = () => {
       const state = store.getState()
       // Check if the schema has been built yet and if
       // all source plugins have reported that they're ready.
-      if (!builtSchema && _.every(_.values(state.status), "ready")) {
+      if (!builtSchema && _.every(_.values(state.status), `ready`)) {
         console.timeEnd(`sourcing and parsing nodes`)
         builtSchema = true
         // Resolve promise once the schema is built.
