@@ -14,18 +14,15 @@ const chokidar = require(`chokidar`)
 const { store } = require(`../redux/`)
 const { boundActionCreators } = require(`../redux/actions`)
 const queryCompiler = require(`./query-compiler`).default
-const queryExtractor = require(`./query-extractor`)
 const queryRunner = require(`./query-runner`)
 
 const pageComponents = {}
 
-function compileAndExtract(path) {
-  return queryCompiler().then(() => queryExtractor(path))
-}
-const watcher = chokidar.watch()
-watcher.on(`change`, path => {
+const watcher = chokidar.watch().on(`change`, path => {
   console.log(`page query change`)
-  compileAndExtract(path).then(query => {
+  queryCompiler().then(queries => {
+    const query = queries.get(lastAction.payload.component).pageQuery
+
     // Check if the query has changed
     if (query !== store.getState().pageComponents[path].query) {
       boundActionCreators.setPageComponentQuery({
@@ -57,7 +54,9 @@ store.subscribe(() => {
       // - Setup a watcher to detect query changes
       boundActionCreators.addPageComponent(lastAction.payload.component)
 
-      compileAndExtract(lastAction.payload.component).then(query => {
+      queryCompiler().then(queries => {
+        const query = queries.get(lastAction.payload.component).pageQuery
+
         boundActionCreators.setPageComponentQuery({
           query,
           componentPath: lastAction.payload.component,

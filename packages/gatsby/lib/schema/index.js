@@ -8,7 +8,6 @@ const buildNodeTypes = require(`./build-node-types`)
 const buildNodeConnections = require(`./build-node-connections`)
 const { store, getNode } = require(`../redux`)
 const { boundActionCreators } = require(`../redux/actions`)
-
 const { deleteNodes } = boundActionCreators
 
 async function buildSchema() {
