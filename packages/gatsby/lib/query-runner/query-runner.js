@@ -1,4 +1,4 @@
-import { graphql as graphqlFunction } from "graphql"
+import { graphql as graphqlFunction } from 'graphql'
 const fs = require(`fs`)
 const Promise = require(`bluebird`)
 

@@ -20,18 +20,20 @@ const pageComponents = {}
 
 const watcher = chokidar.watch().on(`change`, path => {
   console.log(`page query change`)
-  queryCompiler().then(queries => {
-    const query = queries.get(lastAction.payload.component).pageQuery
+  queryCompiler()
+    .then(queries => {
+      const query = queries.get(path)
 
-    // Check if the query has changed
-    if (query !== store.getState().pageComponents[path].query) {
-      boundActionCreators.setPageComponentQuery({
-        query,
-        componentPath: path,
-      })
-      runQueriesForComponent(path)
-    }
-  })
+      // Check if the query has changed
+      if (query !== store.getState().pageComponents[path].query) {
+        boundActionCreators.setPageComponentQuery({
+          query: query && query.text,
+          componentPath: path,
+        })
+        runQueriesForComponent(path)
+      }
+    })
+    .catch(err => console.log(err))
 })
 
 const debounceNewPages = _.debounce(() => {
@@ -53,16 +55,19 @@ store.subscribe(() => {
       // - Extract its query and save it
       // - Setup a watcher to detect query changes
       boundActionCreators.addPageComponent(lastAction.payload.component)
+      console.log(`compiled!`)
+      queryCompiler()
+        .then(queries => {
+          const query = queries.get(lastAction.payload.component)
 
-      queryCompiler().then(queries => {
-        const query = queries.get(lastAction.payload.component).pageQuery
-
-        boundActionCreators.setPageComponentQuery({
-          query,
-          componentPath: lastAction.payload.component,
+          boundActionCreators.setPageComponentQuery({
+            query: query && query.text,
+            componentPath: lastAction.payload.component,
+          })
+          debounceNewPages()
         })
-        debounceNewPages()
-      })
+        .catch(err => console.log(err))
+
       watcher.add(lastAction.payload.component)
     }
 
